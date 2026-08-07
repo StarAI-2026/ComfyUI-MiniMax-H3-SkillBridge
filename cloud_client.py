@@ -25,12 +25,13 @@ def _image_part(image: Image.Image, label: str) -> list[dict[str, Any]]:
 def chat_cloud(api_base: str, model: str, system: str, prompt: str,
                images: list[Image.Image], video_frames: list[Image.Image],
                temperature: float, top_p: float, max_tokens: int,
-               repetition_penalty: float, proxy_url: str = "", timeout: int = 120) -> str:
-    key = get_api_key()
+               repetition_penalty: float, api_key: str = "",
+               proxy_url: str = "", timeout: int = 120) -> str:
+    key = (api_key or "").strip() or get_api_key()
     if not key:
         raise CloudError(
-            "API Key 未配置。为防止分享工作流时泄露密钥，请在环境变量 SKILLBRIDGE_API_KEY "
-            "或插件目录 .env 中配置（见 README）。"
+            "API Key 未配置。请在节点「API 密钥」输入框填入密钥（一次性，不会随工作流保存），"
+            "或设置环境变量 SKILLBRIDGE_API_KEY / 插件目录 .env（见 README）。"
         )
     if not api_base.strip() or not model.strip():
         raise CloudError("云端模式必须填写 api_base 和 model")

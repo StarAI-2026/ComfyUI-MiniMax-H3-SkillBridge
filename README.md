@@ -31,24 +31,26 @@ pip install -r requirements.txt
 | `api_base` | OpenAI 兼容接口地址，例如 `https://your-provider/v1` |
 | `model` | 服务商实际的视觉模型名 |
 
-## API Key 安全配置
+## API Key 配置
 
-为避免分享工作流时泄露密钥，节点**不提供** `api_key` 输入框，改为从以下任一来源读取：
+节点内置 **「API 密钥」** 输入框，实现一次性、不泄露的密钥输入：
 
-1. 复制 `.env.example` 为插件目录下的 `.env`，填入 `SKILLBRIDGE_API_KEY`；`.env` 已被 `.gitignore` 排除，不会提交或随工作流分享。
-2. 或设置系统环境变量 `SKILLBRIDGE_API_KEY`。
-
-```bash
-# .env 方式（插件目录下）
-SKILLBRIDGE_API_KEY=your_api_key_here
-```
+- 输入后显示为 **密码（••••）**，不会明文显示。
+- 该输入框设置 `serialize = false`，**不会写入工作流 JSON**，因此分享工作流文件/截图都不会泄露密钥。
+- 每次重新加载工作流或刷新页面后需**重新输入**（一次性输入设计）。
+- 输入框为空时，自动回退读取环境变量 `SKILLBRIDGE_API_KEY` 或插件目录 `.env` 中的密钥。
 
 ```powershell
-# 或环境变量方式（Windows PowerShell）
+# 可选：环境变量方式（Windows PowerShell）
 $env:SKILLBRIDGE_API_KEY="your_api_key_here"
 ```
 
-API Key 只从环境/本地文件读取，**不会写入工作流 JSON**，因此分享工作流不会泄露密钥。
+```bash
+# 可选：插件目录 .env 方式（复制 .env.example 后填写）
+SKILLBRIDGE_API_KEY=your_api_key_here
+```
+
+> 节点「API 密钥」输入框的值只存在于当前会话内存，运行时随 API 请求发送，**不落盘、不进工作流**。`.env` 已被 `.gitignore` 排除，不会提交。
 
 图片输入：
 

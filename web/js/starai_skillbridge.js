@@ -98,6 +98,20 @@ function updateDynamicImageInputs(node) {
   if (typeof node.setDirtyCanvas === "function") node.setDirtyCanvas(true, true);
 }
 
+// Make the API key widget a one-time, masked input that is never written to the
+// workflow JSON. widget.serialize=false skips workflow persistence (LGraphNode
+// serialize/configure) but keeps options.serialize at its default true so the
+// value is still sent to the backend on each queue.
+function configureApiKeyWidget(node) {
+  const widget = (node.widgets || []).find((w) => w.name === "api_key");
+  if (!widget) return;
+  widget.serialize = false;
+  widget.options = widget.options || {};
+  widget.options.serialize = true;
+  if (widget.inputEl) widget.inputEl.type = "password";
+  widget.value = "";
+}
+
 app.registerExtension({
   name: "StarAI.SkillBridge.DynamicImages",
   beforeRegisterNodeDef(nodeType, nodeData) {
@@ -106,7 +120,10 @@ app.registerExtension({
     const originalCreated = nodeType.prototype.onNodeCreated;
     nodeType.prototype.onNodeCreated = function () {
       const result = originalCreated?.apply(this, arguments);
-      queueMicrotask(() => updateDynamicImageInputs(this));
+      queueMicrotask(() => {
+        updateDynamicImageInputs(this);
+        configureApiKeyWidget(this);
+      });
       return result;
     };
 
@@ -120,7 +137,10 @@ app.registerExtension({
 
   loadedGraphNode(node) {
     if (node?.type === NODE_TYPE) {
-      queueMicrotask(() => updateDynamicImageInputs(node));
+      queueMicrotask(() => {
+        updateDynamicImageInputs(node);
+        configureApiKeyWidget(node);
+      });
     }
   },
 });

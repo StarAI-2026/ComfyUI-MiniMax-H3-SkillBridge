@@ -40,6 +40,14 @@ class StarAISkillBridge:
                     "STRING",
                     {"default": "gpt-5.6-luna", "multiline": False, "display_name": "云端模型"},
                 ),
+                "api_key": (
+                    "STRING",
+                    {
+                        "default": "",
+                        "multiline": False,
+                        "display_name": "API 密钥（一次性，不随工作流保存）",
+                    },
+                ),
             },
             "optional": {
                 **{f"image_{index}": ("IMAGE",) for index in range(1, 65)},
@@ -74,6 +82,7 @@ class StarAISkillBridge:
         user_prompt: str,
         api_base: str,
         model: str,
+        api_key: str = "",
         image_1: Any = None,
         image_2: Any = None,
         image_3: Any = None,
@@ -99,6 +108,7 @@ class StarAISkillBridge:
                 top_p=0.9,
                 max_tokens=2048,
                 repetition_penalty=1.05,
+                api_key=api_key,
                 proxy_url="",
                 timeout=120,
             )
