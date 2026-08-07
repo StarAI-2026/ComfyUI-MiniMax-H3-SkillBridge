@@ -30,7 +30,25 @@ pip install -r requirements.txt
 | `user_prompt` | 用户要求 |
 | `api_base` | OpenAI 兼容接口地址，例如 `https://your-provider/v1` |
 | `model` | 服务商实际的视觉模型名 |
-| `api_key` | API Key（密码显示，也可以设置环境变量 `SKILLBRIDGE_API_KEY`） |
+
+## API Key 安全配置
+
+为避免分享工作流时泄露密钥，节点**不提供** `api_key` 输入框，改为从以下任一来源读取：
+
+1. 复制 `.env.example` 为插件目录下的 `.env`，填入 `SKILLBRIDGE_API_KEY`；`.env` 已被 `.gitignore` 排除，不会提交或随工作流分享。
+2. 或设置系统环境变量 `SKILLBRIDGE_API_KEY`。
+
+```bash
+# .env 方式（插件目录下）
+SKILLBRIDGE_API_KEY=your_api_key_here
+```
+
+```powershell
+# 或环境变量方式（Windows PowerShell）
+$env:SKILLBRIDGE_API_KEY="your_api_key_here"
+```
+
+API Key 只从环境/本地文件读取，**不会写入工作流 JSON**，因此分享工作流不会泄露密钥。
 
 图片输入：
 

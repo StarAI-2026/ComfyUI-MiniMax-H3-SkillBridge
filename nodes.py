@@ -40,10 +40,6 @@ class StarAISkillBridge:
                     "STRING",
                     {"default": "gpt-5.6-luna", "multiline": False, "display_name": "云端模型"},
                 ),
-                "api_key": (
-                    "STRING",
-                    {"default": "", "multiline": False, "password": True, "display_name": "API 密钥"},
-                ),
             },
             "optional": {
                 **{f"image_{index}": ("IMAGE",) for index in range(1, 65)},
@@ -78,7 +74,6 @@ class StarAISkillBridge:
         user_prompt: str,
         api_base: str,
         model: str,
-        api_key: str,
         image_1: Any = None,
         image_2: Any = None,
         image_3: Any = None,
@@ -95,7 +90,6 @@ class StarAISkillBridge:
             frames = collect_video_frames(video, frame_count=8, sample_interval=1, max_image_side=1024)
             raw = chat_cloud(
                 api_base,
-                api_key,
                 model,
                 self._system(skill_name, instructions),
                 user_prompt,

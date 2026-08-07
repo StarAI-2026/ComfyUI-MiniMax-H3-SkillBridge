@@ -9,3 +9,4 @@ env/
 .vscode/
 .DS_Store
 *.log
+.env

@@ -21,7 +21,8 @@ def test_node_is_cloud_only():
     required = inputs["required"]
     assert "api_base" in required
     assert "model" in required
-    assert "api_key" in required
+    assert "api_key" not in required
+    assert "api_key" not in inputs["optional"]
     assert "run_mode" not in required
     assert "local_model" not in required
     assert "quantization" not in required

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import base64
-import os
 from typing import Any
 
 import requests
 from PIL import Image
 
 from .media import image_bytes
+from .secrets import get_api_key
 
 
 class CloudError(RuntimeError):
@@ -22,13 +22,16 @@ def _image_part(image: Image.Image, label: str) -> list[dict[str, Any]]:
     ]
 
 
-def chat_cloud(api_base: str, api_key: str, model: str, system: str, prompt: str,
+def chat_cloud(api_base: str, model: str, system: str, prompt: str,
                images: list[Image.Image], video_frames: list[Image.Image],
                temperature: float, top_p: float, max_tokens: int,
                repetition_penalty: float, proxy_url: str = "", timeout: int = 120) -> str:
-    key = api_key.strip() or os.getenv("SKILLBRIDGE_API_KEY", "").strip()
+    key = get_api_key()
     if not key:
-        raise CloudError("API Key 不能为空，请在节点的 api_key 密码框中输入")
+        raise CloudError(
+            "API Key 未配置。为防止分享工作流时泄露密钥，请在环境变量 SKILLBRIDGE_API_KEY "
+            "或插件目录 .env 中配置（见 README）。"
+        )
     if not api_base.strip() or not model.strip():
         raise CloudError("云端模式必须填写 api_base 和 model")
 
