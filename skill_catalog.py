@@ -3,10 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 PLUGIN_DIR = Path(__file__).parent
-SKILL_ROOTS = (
-    PLUGIN_DIR / "skills",
-    PLUGIN_DIR.parent / "ComfyUI-SkillBridge" / "skills",
-)
+SKILL_ROOTS = (PLUGIN_DIR / "skills",)
 
 
 def discover_skills() -> list[str]:

@@ -46,7 +46,19 @@ Image Batch → images
 
 ## Skill
 
-`SKILL.md` 放在插件目录的 `skills/<技能名>/SKILL.md`，或旧目录 `ComfyUI-SkillBridge/skills/<技能名>/SKILL.md`，节点会自动扫描并在 `skill` 下拉框中列出。
+节点扫描插件内置的 `skills/` 目录，把每个 `SKILL.md` 作为一条技能规则，在 `skill` 下拉框中列出。
+
+内置技能：
+
+- `3d-animation-short-generator`：3D 动画短片工作流
+- `brand-promo-video-generator`：品牌宣传短片
+- `co-op-game-intro-generator`：双人合作游戏开场动画
+- `h3-prompt-writing`：MiniMax H3 视频提示词写作
+- `handdrawn-live-video-generator`：手绘发光动画与实拍融合
+- `minimalist-product-ad-generator`：极简产品广告片
+- `mv-subtitle-skill-confirmed`：音乐 MV 与歌词字幕
+- `paper-collage-explainer-generator`：纸质拼贴科普动画
+- `papercraft-stop-motion-explainer`：纸艺定格科普视频
 
 ## 输出
 
