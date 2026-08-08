@@ -6,17 +6,17 @@ from pathlib import Path
 def load_package():
     root = Path(__file__).parents[1]
     spec = importlib.util.spec_from_file_location(
-        "starai_skillbridge_test", root / "__init__.py", submodule_search_locations=[str(root)]
+        "minimax_h3_skillbridge_test", root / "__init__.py", submodule_search_locations=[str(root)]
     )
     module = importlib.util.module_from_spec(spec)
-    sys.modules["starai_skillbridge_test"] = module
+    sys.modules["minimax_h3_skillbridge_test"] = module
     spec.loader.exec_module(module)
     return module
 
 
 def test_node_is_cloud_only():
     module = load_package()
-    node = module.NODE_CLASS_MAPPINGS["StarAISkillBridge"]
+    node = module.NODE_CLASS_MAPPINGS["MiniMaxH3SkillBridge"]
     inputs = node.INPUT_TYPES()
     required = inputs["required"]
     assert "api_base" in required

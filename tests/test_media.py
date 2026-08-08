@@ -7,15 +7,15 @@ import torch
 
 ROOT = Path(__file__).parents[1]
 spec = importlib.util.spec_from_file_location(
-    "starai_skillbridge_media_test",
+    "minimax_h3_skillbridge_media_test",
     ROOT / "__init__.py",
     submodule_search_locations=[str(ROOT)],
 )
 package = importlib.util.module_from_spec(spec)
-sys.modules["starai_skillbridge_media_test"] = package
+sys.modules["minimax_h3_skillbridge_media_test"] = package
 assert spec.loader is not None
 spec.loader.exec_module(package)
-media = sys.modules["starai_skillbridge_media_test.media"]
+media = sys.modules["minimax_h3_skillbridge_media_test.media"]
 
 
 def test_collect_images_expands_batch():

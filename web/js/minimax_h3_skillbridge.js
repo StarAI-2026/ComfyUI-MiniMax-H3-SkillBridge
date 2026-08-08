@@ -1,6 +1,6 @@
 import { app } from "/scripts/app.js";
 
-const NODE_TYPE = "StarAISkillBridge";
+const NODE_TYPE = "MiniMaxH3SkillBridge";
 const INITIAL_VISIBLE_PORTS = 4;
 const MAX_IMAGE_PORTS = 64;
 const INPUT_LABELS = {
@@ -113,7 +113,7 @@ function configureApiKeyWidget(node) {
 }
 
 app.registerExtension({
-  name: "StarAI.SkillBridge.DynamicImages",
+  name: "MiniMaxH3.SkillBridge.DynamicImages",
   beforeRegisterNodeDef(nodeType, nodeData) {
     if (nodeData.name !== NODE_TYPE) return;
 

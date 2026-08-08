@@ -1,10 +1,11 @@
-# StarAI-SkillBridge
+# ComfyUI-MiniMax-H3-SkillBridge
 
-ComfyUI 节点：结合本地 `SKILL.md` 规则、图片/视频参考和用户要求，调用 OpenAI 兼容的云端视觉模型生成视频提示词。
+ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）、图片/视频参考和用户要求，调用 OpenAI 兼容的云端视觉模型生成视频提示词。
 
 ## 特性
 
 - 自动发现本地 `SKILL.md`，把技能规则注入系统提示词
+- 内置 MiniMax H3 视频 prompt 写作技能，开箱即用
 - `image_1` 至 `image_64` 动态图片输入，连接后逐个增加
 - 支持 `images` 批次输入与 `video` 视频帧输入
 - 调用 OpenAI 兼容的 Chat Completions 接口（支持视觉参数）
@@ -12,13 +13,13 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则、图片/视频参考和用户�
 
 ## 安装
 
-把 `StarAI-SkillBridge` 目录放到 ComfyUI 的 `custom_nodes` 下，开启依赖：
+把 `ComfyUI-MiniMax-H3-SkillBridge` 目录放到 ComfyUI 的 `custom_nodes` 下，开启依赖：
 
 ```bash
 pip install -r requirements.txt
 ```
 
-重启 ComfyUI 后，在节点搜索框输入 `StarAI SkillBridge`。
+重启 ComfyUI 后，在节点搜索框输入 `MiniMax H3 SkillBridge`。
 
 ## 使用
 
@@ -28,7 +29,7 @@ pip install -r requirements.txt
 | --- | --- |
 | `skill` | 使用的 `SKILL.md` 技能名 |
 | `user_prompt` | 用户要求 |
-| `api_base` | OpenAI 兼容接口地址，例如 `https://your-provider/v1` |
+| `api_base` | OpenAI 兼容接口地址，例如 `https://api.openai.com/v1` |
 | `model` | 服务商实际的视觉模型名 |
 
 ## API Key 配置

@@ -7,10 +7,10 @@ from pathlib import Path
 def load_secrets():
     root = Path(__file__).parents[1]
     spec = importlib.util.spec_from_file_location(
-        "starai_skillbridge_secrets_test", root / "secrets.py"
+        "minimax_h3_skillbridge_secrets_test", root / "secrets.py"
     )
     module = importlib.util.module_from_spec(spec)
-    sys.modules["starai_skillbridge_secrets_test"] = module
+    sys.modules["minimax_h3_skillbridge_secrets_test"] = module
     spec.loader.exec_module(module)
     return module
 
