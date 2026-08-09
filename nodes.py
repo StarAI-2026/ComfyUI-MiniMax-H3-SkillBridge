@@ -9,7 +9,7 @@ from .skill_catalog import discover_skills, load_skill
 
 
 class MiniMaxH3SkillBridge:
-    CATEGORY = "StarAI/MiniMax H3"
+    CATEGORY = "MiniMax/H3 SkillBridge"
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = ("视觉分析", "最终提示词", "运行状态", "模型信息")
     FUNCTION = "run"
@@ -120,5 +120,5 @@ class MiniMaxH3SkillBridge:
             raise RuntimeError(f"MiniMax H3 SkillBridge：{exc}") from exc
 
 
-NODE_CLASS_MAPPINGS = {"MiniMaxH3SkillBridge": MiniMaxH3SkillBridge}
-NODE_DISPLAY_NAME_MAPPINGS = {"MiniMaxH3SkillBridge": "MiniMax H3 SkillBridge"}
+NODE_CLASS_MAPPINGS = {"StariAI-MiniMaxH3-Skill": StariAI_MiniMaxH3_Skill}
+NODE_DISPLAY_NAME_MAPPINGS = {"StariAI-MiniMaxH3-Skill": "MiniMax H3 SkillBridge"}

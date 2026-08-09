@@ -1,6 +1,6 @@
 import { app } from "/scripts/app.js";
 
-const NODE_TYPE = "MiniMaxH3SkillBridge";
+const NODE_TYPE = "StariAI-MiniMaxH3-Skill";
 const INITIAL_VISIBLE_PORTS = 4;
 const MAX_IMAGE_PORTS = 64;
 const INPUT_LABELS = {

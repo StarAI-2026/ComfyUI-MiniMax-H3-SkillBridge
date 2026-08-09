@@ -16,7 +16,7 @@ def load_package():
 
 def test_node_is_cloud_only():
     module = load_package()
-    node = module.NODE_CLASS_MAPPINGS["MiniMaxH3SkillBridge"]
+    node = module.NODE_CLASS_MAPPINGS["StariAI-MiniMaxH3-Skill"]
     inputs = node.INPUT_TYPES()
     required = inputs["required"]
     assert "api_base" in required
