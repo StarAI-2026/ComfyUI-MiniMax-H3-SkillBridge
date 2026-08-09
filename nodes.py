@@ -121,4 +121,4 @@ class MiniMaxH3SkillBridge:
 
 
 NODE_CLASS_MAPPINGS = {"MiniMaxH3SkillBridge": MiniMaxH3SkillBridge}
-NODE_DISPLAY_NAME_MAPPINGS = {"MiniMaxH3SkillBridge": "StarAI MiniMax H3 SkillBridge"}
+NODE_DISPLAY_NAME_MAPPINGS = {"MiniMaxH3SkillBridge": "MiniMax H3 SkillBridge"}
