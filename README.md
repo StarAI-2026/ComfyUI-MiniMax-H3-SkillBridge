@@ -1,6 +1,15 @@
 # ComfyUI-MiniMax-H3-SkillBridge
 
+> **作者：StarAI** | ID: `StariAI`
+
 ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）、图片/视频参考和用户要求，调用 OpenAI 兼容的云端视觉模型生成视频提示词。
+
+## 关于作者
+
+- **官网**：https://staraigc.top
+- **Bilibili**：https://space.bilibili.com/495356821
+- **YouTube**：https://www.youtube.com/@StarAIGC
+- **QQ 群**：https://qm.qq.com/q/lge501JeLY
 
 ## 特性
 
@@ -19,7 +28,7 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）
 pip install -r requirements.txt
 ```
 
-重启 ComfyUI 后，在节点搜索框输入 `MiniMax H3 SkillBridge`。
+重启 ComfyUI 后，在节点搜索框输入 `StarAI MiniMax H3 SkillBridge`。
 
 ## 使用
 
