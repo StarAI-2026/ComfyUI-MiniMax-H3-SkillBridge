@@ -9,7 +9,7 @@ from .skill_catalog import discover_skills, load_skill
 
 
 class MiniMaxH3SkillBridge:
-    CATEGORY = "MiniMax/H3 SkillBridge"
+    CATEGORY = "StariAI-MiniMaxH3-Skill"
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = ("视觉分析", "最终提示词", "运行状态", "模型信息")
     FUNCTION = "run"

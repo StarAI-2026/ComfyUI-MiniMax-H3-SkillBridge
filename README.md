@@ -28,7 +28,7 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）
 pip install -r requirements.txt
 ```
 
-重启 ComfyUI 后，在节点搜索框输入 `MiniMax H3 SkillBridge`。
+重启 ComfyUI 后，在节点搜索框输入 `StariAI-MiniMaxH3-Skill`。
 
 ## 使用
 
