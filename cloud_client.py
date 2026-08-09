@@ -7,7 +7,7 @@ import requests
 from PIL import Image
 
 from .media import image_bytes
-from .secrets import get_api_key
+from .api_key_store import get_api_key
 
 
 class CloudError(RuntimeError):

@@ -7,7 +7,7 @@ from pathlib import Path
 def load_secrets():
     root = Path(__file__).parents[1]
     spec = importlib.util.spec_from_file_location(
-        "minimax_h3_skillbridge_secrets_test", root / "secrets.py"
+        "minimax_h3_skillbridge_secrets_test", root / "api_key_store.py"
     )
     module = importlib.util.module_from_spec(spec)
     sys.modules["minimax_h3_skillbridge_secrets_test"] = module

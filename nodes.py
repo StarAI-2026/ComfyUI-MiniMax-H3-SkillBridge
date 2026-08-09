@@ -8,7 +8,7 @@ from .media import collect_images, collect_video_frames
 from .skill_catalog import discover_skills, load_skill
 
 
-class MiniMaxH3SkillBridge:
+class StariAI_MiniMaxH3_Skill:
     CATEGORY = "StariAI-MiniMaxH3-Skill"
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = ("视觉分析", "最终提示词", "运行状态", "模型信息")
@@ -117,8 +117,8 @@ class MiniMaxH3SkillBridge:
             model_info = {"mode": "cloud", "model": model, "api_base": api_base.rstrip("/")}
             return analysis, result, json.dumps(status, ensure_ascii=False), json.dumps(model_info, ensure_ascii=False)
         except (ValueError, CloudError) as exc:
-            raise RuntimeError(f"MiniMax H3 SkillBridge：{exc}") from exc
+            raise RuntimeError(f"StariAI-MiniMaxH3-Skill：{exc}") from exc
 
 
 NODE_CLASS_MAPPINGS = {"StariAI-MiniMaxH3-Skill": StariAI_MiniMaxH3_Skill}
-NODE_DISPLAY_NAME_MAPPINGS = {"StariAI-MiniMaxH3-Skill": "MiniMax H3 SkillBridge"}
+NODE_DISPLAY_NAME_MAPPINGS = {"StariAI-MiniMaxH3-Skill": "StariAI-MiniMaxH3-Skill"}
