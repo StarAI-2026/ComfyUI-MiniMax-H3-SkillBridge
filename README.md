@@ -15,6 +15,7 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）
 
 ![SkillBridge 示例](./assets/skillbridge-example.png)
 
+
 ## 特性
 
 - 自动发现本地 `SKILL.md`，把技能规则注入系统提示词
