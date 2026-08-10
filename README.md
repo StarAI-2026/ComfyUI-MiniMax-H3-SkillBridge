@@ -11,6 +11,10 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）
 - **YouTube**：https://www.youtube.com/@StarAIGC
 - **QQ 群**：https://qm.qq.com/q/lge501JeLY
 
+## 示例
+
+![SkillBridge 示例](./assets/skillbridge-example.png)
+
 ## 特性
 
 - 自动发现本地 `SKILL.md`，把技能规则注入系统提示词
