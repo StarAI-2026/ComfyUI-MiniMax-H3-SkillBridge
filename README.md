@@ -1,4 +1,4 @@
-# StarAI SkillBridge
+# ComfyUI-MiniMax-H3-SkillBridge
 
 > **作者：StarAI** | ID: `StariAI`
 
@@ -26,7 +26,7 @@ ComfyUI 节点：结合本地 `SKILL.md` 规则（含 MiniMax H3 视频技能）
 
 ## 安装
 
-把 `ComfyUI-SkillBridge` 目录放到 ComfyUI 的 `custom_nodes` 下，开启依赖：
+把 `ComfyUI-MiniMax-H3-SkillBridge` 目录放到 ComfyUI 的 `custom_nodes` 下，开启依赖：
 
 ```bash
 pip install -r requirements.txt
