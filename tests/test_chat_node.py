@@ -26,7 +26,7 @@ def test_chat_node_is_registered_and_has_confirmation_outputs():
     assert inputs["required"]["run_mode"][0] == ["一次性输出", "多轮对话"]
     assert inputs["required"]["conversation_action"][0] == ["继续对话", "确认并生成", "清空对话"]
     assert node.RETURN_NAMES[2] == "最终提示词"
-    assert node.RETURN_TYPES == ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING")
+    assert node.RETURN_TYPES == ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING")
     assert node.RETURN_NAMES == (
         "视觉分析",
         "当前结果",
@@ -34,6 +34,7 @@ def test_chat_node_is_registered_and_has_confirmation_outputs():
         "对话历史",
         "运行状态",
         "模型信息",
+        "分段提示词JSON",
     )
     assert inputs["optional"]["video_duration"][1]["min"] == 5
     assert inputs["optional"]["video_duration"][1]["max"] == 15

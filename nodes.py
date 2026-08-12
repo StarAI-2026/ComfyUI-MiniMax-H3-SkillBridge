@@ -6,10 +6,17 @@ from typing import Any
 
 from .cloud_client import CloudError, chat_cloud
 from .media import collect_images, collect_video_frames
-from .skill_catalog import discover_skills, load_skill
+from .segment_plan import (
+    PLAN_MARKER,
+    parse_segment_plan,
+    remove_plan_block,
+    serialize_segment_plan,
+)
+from .skill_catalog import discover_skill_options, load_skill
 
 
 CUT_COUNT_OPTIONS = ["不切镜", "自动", *[f"切镜{index}" for index in range(1, 16)]]
+HOLOGRAPHIC_SKILL = "holographic-explainer"
 
 
 def parse_shot_plan(video_duration: int, cut_count: str) -> dict[str, Any]:
@@ -81,15 +88,127 @@ def shot_plan_instruction(plan: dict[str, Any]) -> str:
     )
 
 
+CLONE_SLOT_COUNT = 8
+CLONE_PLACEHOLDER = "连接下游 COMBO 后克隆该功能"
+
+KNOWN_FUNCTION_HINTS = {
+    "aspect_ratio": "控制画面宽高比。必须按该比例组织构图、主体位置、镜头范围和空间关系。",
+    "宽高比": "控制画面宽高比。必须按该比例组织构图、主体位置、镜头范围和空间关系。",
+    "megapixels": "控制整体画质密度和画面信息量。提示词中的细节密度应与该分辨率档位匹配。",
+    "百万像素": "控制整体画质密度和画面信息量。提示词中的细节密度应与该分辨率档位匹配。",
+    "multiple": "控制宽高对齐倍数。不要写出无法按该倍数落地的构图或裁切要求。",
+    "倍数": "控制宽高对齐倍数。不要写出无法按该倍数落地的构图或裁切要求。",
+}
+
+
+def parse_clone_functions(raw, **kwargs):
+    payload = raw
+    if isinstance(raw, str):
+        try:
+            payload = json.loads(raw or "[]")
+        except (TypeError, ValueError):
+            payload = []
+    if not isinstance(payload, list):
+        payload = []
+
+    functions = []
+    used_indexes = set()
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        try:
+            index = int(item.get("index", -1))
+        except (TypeError, ValueError):
+            continue
+        if not 0 <= index < CLONE_SLOT_COUNT or index in used_indexes:
+            continue
+        name = str(item.get("name") or item.get("label") or "").strip()
+        if not name:
+            continue
+        value = str(kwargs.get(f"clone_{index}") or item.get("value") or "").strip()
+        if not value or value == CLONE_PLACEHOLDER:
+            continue
+        functions.append({
+            "index": index,
+            "name": name,
+            "label": str(item.get("label") or name).strip(),
+            "value": value,
+        })
+        used_indexes.add(index)
+
+    functions.sort(key=lambda item: item["index"])
+    return functions
+
+
+def _aspect_ratio_hint(value):
+    text = str(value or "").lower().replace("：", ":")
+    if "9:16" in text:
+        return (
+            "竖屏构图。主体应适合纵向画幅，避免横向展开，"
+            "保持人物/主体在画面高度方向完整，并按叙事需要上下分布。"
+        )
+    if "16:9" in text:
+        return "横屏构图。主体和场景应横向展开，注意左右空间、环境层次和镜头横移。"
+    if "1:1" in text or "square" in text:
+        return "方形构图。主体居中，避免过宽或过高的场面调度。"
+    if text in {"c", "custom"}:
+        return "自定义比例。按当前分辨率给出的宽高理解构图，不要擅自改成常见标准比例。"
+    return f"按 {value} 的画面比例组织构图、主体位置、镜头范围和空间关系。"
+
+
+def function_hint(name, value):
+    key = str(name or "").strip()
+    lowered = key.lower().replace(" ", "_")
+    if lowered in {"aspect_ratio"} or key == "宽高比":
+        return _aspect_ratio_hint(value)
+    return KNOWN_FUNCTION_HINTS.get(key) or KNOWN_FUNCTION_HINTS.get(lowered) or (
+        f"这是用户锁定的生成控制项「{key}」。"
+        "请理解该选项对画面/视频生成的实际影响，并据此调整提示词中的对应描述，不要忽略这个选择。"
+    )
+
+
+def clone_function_instruction(functions):
+    if not functions:
+        return ""
+    lines = [
+        "【已锁定的功能参数】",
+        "用户通过节点功能输出连接锁定了以下功能。必须理解每项作用，"
+        "并据此改写最终视频提示词中的构图、镜头、主体位置、空间关系和画面约束。"
+        "未列出的功能不要自行发明。",
+    ]
+    for item in functions:
+        display = item.get("label") or item["name"]
+        lines.append(f"- 功能：{display}（{item['name']}）")
+        lines.append(f"  当前值：{item['value']}")
+        lines.append(f"  作用：{function_hint(item['name'], item['value'])}")
+    return "\n".join(lines)
+
+
+def clone_output_values(functions, **kwargs):
+    values = []
+    by_index = {item["index"]: item["value"] for item in functions}
+    for index in range(CLONE_SLOT_COUNT):
+        raw = by_index.get(index, kwargs.get(f"clone_{index}", ""))
+        text = str(raw or "").strip()
+        values.append("" if text == CLONE_PLACEHOLDER else text)
+    return tuple(values)
+
+
 class StariAI_MiniMaxH3_Skill:
     CATEGORY = "StariAI-MiniMaxH3-Skill"
-    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
-    RETURN_NAMES = ("视觉分析", "最终提示词", "运行状态", "模型信息")
+    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING") + tuple(["*"] * CLONE_SLOT_COUNT)
+    RETURN_NAMES = (
+        "视觉分析",
+        "最终提示词",
+        "运行状态",
+        "模型信息",
+        "分段提示词JSON",
+    ) + tuple(f"clone_{index}" for index in range(CLONE_SLOT_COUNT))
     FUNCTION = "run"
 
     @classmethod
     def INPUT_TYPES(cls):
-        skills = discover_skills() or ["(没有发现 skill)"]
+        skills = discover_skill_options() or ["(没有发现 skill)"]
         return {
             "required": {
                 "skill": (skills, {"default": skills[0], "display_name": "技能"}),
@@ -140,20 +259,45 @@ class StariAI_MiniMaxH3_Skill:
                 **{f"image_{index}": ("IMAGE",) for index in range(1, 7)},
                 "images": ("IMAGE", {"display_name": "多图输入"}),
                 "video": ("IMAGE", {"display_name": "视频输入"}),
+                "clone_functions": (
+                    "STRING",
+                    {"default": "[]", "multiline": False},
+                ),
             },
         }
 
     @staticmethod
-    def _system(skill_name: str, instructions: str, shot_plan: dict[str, Any]) -> str:
-        return (
+    def _system(
+        skill_name: str,
+        instructions: str,
+        shot_plan: dict[str, Any],
+        clone_functions: list[dict[str, Any]] | None = None,
+    ) -> str:
+        extra = clone_function_instruction(clone_functions or [])
+        extra_block = f"{extra}\n\n" if extra else ""
+        base = (
             "你是严格遵循本地 skill 的视频提示词工程师。\n"
             f"当前 skill：{skill_name}\n\n{instructions}\n\n"
             f"{shot_plan_instruction(shot_plan)}\n\n"
+            f"{extra_block}"
             "先分析所有参考图与视频帧中的主体、场景、构图、镜头、动作、时间顺序、"
             "光线、材质、风格和一致性；再结合用户要求和 skill 生成最终结果。\n"
             "输出格式必须分为两段：\n"
             "[视觉分析]\n简明归纳参考素材。\n"
             "[最终视频提示词]\n仅输出可直接交给视频模型的完整提示词。"
+        )
+        if skill_name != HOLOGRAPHIC_SKILL:
+            return base
+        return (
+            f"{base}\n\n【H3 自动续写分段契约】\n"
+            "当文案需要超过单段时长时，必须将完整视频拆成连续段；每段都必须是完整可用的 Ref2VA 提示词，"
+            "并覆盖各自 narration，不能省略后续文案。第一段最长 15 秒；第 2 段及以后因 22 帧 motion context"
+            "会被裁掉，交付时长最长 14.167 秒。\n"
+            f"在全部人类可读内容之后，严格输出 {PLAN_MARKER}，紧跟一个 JSON 对象，不能使用额外解释。\n"
+            "JSON schema 固定为 stariai_h3_segment_plan_v1，字段必须包含 schema、skill、"
+            "max_segment_duration_seconds、segment_count、segments。segments 中每项必须包含 index（从 0 连续递增）、"
+            "prompt、narration、duration_seconds、timeline_start_seconds、timeline_end_seconds、continuity。"
+            "时间线从 0 开始连续无空隙，duration 必须与 end-start 一致，第二段及后续段必须写明 continuity。"
         )
 
     @staticmethod
@@ -163,6 +307,21 @@ class StariAI_MiniMaxH3_Skill:
             return "", result
         analysis, prompt = result.split(marker, 1)
         return analysis.replace("[视觉分析]", "").strip(), prompt.strip()
+
+    @staticmethod
+    def _segment_output(skill_name: str, raw: str) -> tuple[str, str, dict[str, Any]]:
+        if skill_name != HOLOGRAPHIC_SKILL:
+            return "", raw, {}
+        plan = parse_segment_plan(raw, skill_name)
+        readable = remove_plan_block(raw)
+        return serialize_segment_plan(plan), readable, {
+            "segment_plan_schema": "stariai_h3_segment_plan_v1",
+            "segment_count": plan.segment_count,
+            "segment_plan_hash": plan.plan_hash,
+            "context_transport": "memory",
+            "file_required": False,
+            "recovery_policy": "detached_on_process_loss",
+        }
 
     def run(
         self,
@@ -179,11 +338,14 @@ class StariAI_MiniMaxH3_Skill:
         image_4: Any = None,
         images: Any = None,
         video: Any = None,
+        clone_functions: str = "[]",
         **kwargs: Any,
     ):
         try:
             skill_name, instructions = load_skill(skill)
             shot_plan = parse_shot_plan(video_duration, cut_count)
+            functions = parse_clone_functions(clone_functions, **kwargs)
+            clone_values = clone_output_values(functions, **kwargs)
             direct_images = [image_1, image_2, image_3, image_4]
             dynamic_images = [value for name, value in kwargs.items() if name.startswith("image_")]
             references = collect_images(*direct_images, images, *dynamic_images, max_image_side=1024)
@@ -191,7 +353,7 @@ class StariAI_MiniMaxH3_Skill:
             raw = chat_cloud(
                 api_base,
                 model,
-                self._system(skill_name, instructions, shot_plan),
+                self._system(skill_name, instructions, shot_plan, functions),
                 user_prompt,
                 references,
                 frames,
@@ -204,6 +366,7 @@ class StariAI_MiniMaxH3_Skill:
                 timeout=120,
             )
             analysis, result = self._split_result(raw)
+            segment_plan_json, result, plan_status = self._segment_output(skill_name, result)
             status = {
                 "ok": True,
                 "mode": "cloud",
@@ -214,9 +377,14 @@ class StariAI_MiniMaxH3_Skill:
                 "shot_count": shot_plan["shot_count"],
                 "images": len(references),
                 "video_frames": len(frames),
+                **plan_status,
             }
             model_info = {"mode": "cloud", "model": model, "api_base": api_base.rstrip("/")}
-            return analysis, result, json.dumps(status, ensure_ascii=False), json.dumps(model_info, ensure_ascii=False)
+            return (
+                analysis, result, json.dumps(status, ensure_ascii=False),
+                json.dumps(model_info, ensure_ascii=False), segment_plan_json,
+                *clone_values,
+            )
         except (ValueError, CloudError) as exc:
             raise RuntimeError(f"StariAI-MiniMaxH3-Skill：{exc}") from exc
 
@@ -224,6 +392,7 @@ class StariAI_MiniMaxH3_Skill:
 class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
     CATEGORY = "StariAI-MiniMaxH3-Skill"
     RETURN_TYPES = (
+        "STRING",
         "STRING",
         "STRING",
         "STRING",
@@ -238,6 +407,7 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
         "对话历史",
         "运行状态",
         "模型信息",
+        "分段提示词JSON",
     )
     FUNCTION = "run_chat"
     OUTPUT_NODE = True
@@ -248,6 +418,10 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
     @classmethod
     def INPUT_TYPES(cls):
         inputs = super().INPUT_TYPES()
+        optional = inputs.setdefault("optional", {})
+        optional.pop("clone_functions", None)
+        for index in range(CLONE_SLOT_COUNT):
+            optional.pop(f"clone_{index}", None)
         required = inputs["required"]
         inputs["required"] = {
             "run_mode": (cls.MODES, {"default": "多轮对话", "display_name": "运行模式"}),
@@ -272,6 +446,8 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
             "confirmed_prompt": "",
             "confirmed": False,
             "shot_plan": None,
+            "segment_plan_json": "",
+            "segment_plan_hash": "",
         }
 
     @classmethod
@@ -293,6 +469,8 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
             "confirmed_prompt": str(state.get("confirmed_prompt") or ""),
             "confirmed": bool(state.get("confirmed", False)),
             "shot_plan": state.get("shot_plan") if isinstance(state.get("shot_plan"), dict) else None,
+            "segment_plan_json": str(state.get("segment_plan_json") or ""),
+            "segment_plan_hash": str(state.get("segment_plan_hash") or ""),
         }
         return state
 
@@ -333,6 +511,7 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
         state: dict[str, Any],
         status: dict[str, Any],
         model_info: dict[str, Any],
+        segment_plan_json: str = "",
     ) -> dict[str, Any]:
         state_json = self._state_json(state)
         history_text = self._history_text(state)
@@ -351,6 +530,7 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                 history_text,
                 json.dumps(status, ensure_ascii=False),
                 json.dumps(model_info, ensure_ascii=False),
+                segment_plan_json,
             ),
             "ui": {
                 "conversation_state": [state_json],
@@ -403,6 +583,8 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                     raise ValueError("还没有可确认的提示词，请先执行一次「继续对话」")
                 if state["shot_plan"] and state["shot_plan"] != shot_plan:
                     raise ValueError("视频时长或切镜数量已改变，请先点击「继续对话」重新生成后再确认")
+                if skill_name == HOLOGRAPHIC_SKILL and not state["segment_plan_json"]:
+                    raise ValueError("全息讲解缺少有效分段计划，请先点击「继续对话」")
                 state["confirmed"] = True
                 state["confirmed_prompt"] = state["last_prompt"]
                 status = {
@@ -416,7 +598,11 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                     "cut_count": shot_plan["cut_count"],
                     "shot_count": shot_plan["shot_count"],
                 }
-                return self._result("", state["last_prompt"], state["confirmed_prompt"], state, status, {"mode": "cloud", "model": model, "api_base": api_base.rstrip("/")})
+                return self._result(
+                    "", state["last_prompt"], state["confirmed_prompt"], state, status,
+                    {"mode": "cloud", "model": model, "api_base": api_base.rstrip("/")},
+                    state["segment_plan_json"],
+                )
 
             direct_images = [image_1, image_2, image_3, image_4]
             dynamic_images = [value for name, value in kwargs.items() if name.startswith("image_")]
@@ -439,6 +625,7 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                 history=[] if run_mode == "一次性输出" else self._history_messages(state),
             )
             analysis, result = self._split_result(raw)
+            segment_plan_json, result, plan_status = self._segment_output(skill_name, result)
             if run_mode == "一次性输出":
                 state = self._empty_state()
                 final_prompt = result
@@ -448,6 +635,8 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                 state["confirmed_prompt"] = ""
                 state["last_prompt"] = result
                 state["shot_plan"] = shot_plan
+                state["segment_plan_json"] = segment_plan_json
+                state["segment_plan_hash"] = plan_status.get("segment_plan_hash", "")
                 state["turns"].append({"user": user_prompt, "assistant": raw, "analysis": analysis, "prompt": result})
                 state["turns"] = state["turns"][-self.MAX_TURNS:]
                 final_prompt = ""
@@ -463,9 +652,10 @@ class StariAI_MiniMaxH3_Chat(StariAI_MiniMaxH3_Skill):
                 "cut_selection": shot_plan["selection"],
                 "cut_count": shot_plan["cut_count"],
                 "shot_count": shot_plan["shot_count"],
+                **plan_status,
             }
             model_info = {"mode": "cloud", "model": model, "api_base": api_base.rstrip("/")}
-            return self._result(analysis, result, final_prompt, state, status, model_info)
+            return self._result(analysis, result, final_prompt, state, status, model_info, segment_plan_json)
         except (ValueError, CloudError) as exc:
             raise RuntimeError(f"StariAI-MiniMaxH3-Chat：{exc}") from exc
 

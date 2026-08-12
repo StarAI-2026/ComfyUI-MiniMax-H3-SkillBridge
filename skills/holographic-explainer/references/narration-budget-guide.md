@@ -6,7 +6,7 @@ This file is the self-contained narration budget calculation and script splittin
 
 - Max segment duration is user-specified (default 15 seconds). The skill must NOT hardcode a fixed duration.
 - Each segment's narration must be fully spoken within that segment's duration.
-- Script coverage must be 100%. Minor colloquial adjustments are allowed as long as meaning is preserved.
+- Script must remain EXACTLY as user provided. NO modifications, additions, deletions, or reordering of any text.
 - Speech rate is NOT fixed. It is calculated from content density or user-provided audio duration.
 
 ---
@@ -114,14 +114,17 @@ available_chars = speech_rate * (max_segment_duration - total_hologram_pause)
      - First half goes to current segment, second half goes to next segment
      - A transition word may be added at the start of the next segment (counts toward budget)
 
-5. **Colloquial micro-adjustments**
-   - If a segment is a few chars short of full: add filler words ("right?", "you see", "actually") without changing meaning
-   - If a segment is a few chars over: remove redundant particles ("的", "了", "一下") without changing meaning
-   - Adjusted text must preserve the original meaning
+5. **Strict text preservation - NO modifications allowed**
+   - Do NOT add filler words, remove particles, adjust word order, or rephrase any text
+   - The script must remain EXACTLY as the user provided
+   - The only allowed operation is splitting at sentence boundaries or comma boundaries
+   - If a segment is a few chars short of the budget: leave it short, do NOT pad with extra words
+   - If a segment is a few chars over the budget: move the overflow sentence to the next segment, do NOT trim
 
-6. **Inter-segment transitions**
-   - If the next segment needs context from the previous one, add a transition word at the start
-   - Transition word chars count toward that segment's budget
+6. **Inter-segment transitions - NO added words**
+   - Do NOT add transition words between segments
+   - Each segment starts with the exact next portion of the original script
+   - If the original script has natural flow, the segments will flow naturally without additions
 
 7. **Last segment check**
    - If the last segment has fewer than 50% of available_chars, move 1-2 sentences from the previous segment
@@ -153,7 +156,7 @@ available_chars = speech_rate * (max_segment_duration - total_hologram_pause)
 |-----------|--------|---------------|
 | Duration | Each segment total = narration + hologram pause | <= max_segment_duration |
 | Char count | Count chars inside `<d>` tags per segment | <= available_chars |
-| Coverage | Concatenate all segment narration, compare to original | 100% (with allowed micro-adjustments) |
+| Coverage | Concatenate all segment narration, compare to original | EXACT match with original script (zero modifications) |
 | Completeness | No sentence cut mid-way | Except long sentence comma splits |
 | Uniformity | Segment char count variance | Max segment chars <= available_chars * 110% |
 

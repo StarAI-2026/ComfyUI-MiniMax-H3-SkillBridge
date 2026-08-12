@@ -137,12 +137,16 @@ Read `references/narration-budget-guide.md` for the complete splitting algorithm
 - The second half goes to the next segment.
 - A transition word may be added at the start of the next segment (counts toward budget).
 
-### 3.3 Colloquial Micro-adjustments
+### 3.3 Strict Text Preservation
 
-Allowed adjustments (must not change meaning):
-- Add filler words to fill budget: "right?", "you see", "actually" (Chinese: "对吧", "你看", "其实")
-- Remove redundant particles to save budget: "的", "了", "一下"
-- Adjust word order for natural speech flow
+CRITICAL: The narration text must be EXACTLY as the user provided. Do NOT:
+- Add or remove any words, particles, or filler words
+- Adjust word order
+- Add transition words between segments
+- Paraphrase or rephrase any part of the script
+- Abbreviate or expand any text
+
+The only allowed operation is splitting the original text at sentence boundaries or comma boundaries for segmentation. Each character of the original script must appear in exactly one segment, in the original order.
 
 ### 3.4 Output Segment Table
 
@@ -156,7 +160,7 @@ Allowed adjustments (must not change meaning):
 ### 3.5 Validate
 
 - Each segment total duration <= max_segment_duration
-- All segments concatenated = 100% of original script (with allowed micro-adjustments)
+- All segments concatenated = EXACT match with original script (zero modifications)
 - No sentence is cut mid-way (except comma splits for long sentences)
 
 ---
@@ -290,7 +294,7 @@ Output a validation report for all segments:
 |------------|--------|---------------|
 | Duration | Last shot timestamp <= max_segment_duration | PASS/FAIL |
 | Char count | Count chars in `<d>` tags per segment | <= available_chars |
-| Script coverage | Concatenate all segment narration, compare to original | 100% (with allowed micro-adjustments) |
+| Script coverage | Concatenate all segment narration, compare to original | EXACT match (zero modifications to original text) |
 | Hologram count | Count hologram interactions per segment | >= 2 per segment |
 | Hologram completeness | Check summon/interact/respond/exit for each | All 4 steps present |
 | Character consistency | Compare Subject 1 across segments | Identical |
@@ -336,7 +340,7 @@ If any check FAILS, note which segment and item, then revise before final output
 - Narration beats are too long to fit their timecode.
 - Fewer than 2 holographic interactions in any segment.
 - Any hologram missing one of the four steps (summon/interact/respond/exit).
-- Script coverage is below 100%.
+- Script is modified in any way (added, removed, reordered, or rephrased text).
 - Text appears as subtitle bars instead of in-scene elements.
 - The output depends on or references any external skill.
 
