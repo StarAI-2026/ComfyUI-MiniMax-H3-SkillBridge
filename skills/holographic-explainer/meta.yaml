@@ -1,0 +1,19 @@
+﻿display-name-zh: 全息讲解
+version: 1.0.0
+tag-en: "Presenter"
+tag-cn: "全息讲解"
+complete-tags-en:
+  - "Video / Presenter"
+  - "Video / Interactive Demo"
+  - "Video / Explainer"
+complete-tags-cn:
+  - "视频 / 角色讲解"
+  - "视频 / 交互演示"
+  - "视频 / 知识科普"
+summary-en: "Turn user-provided reference images and script into multi-segment H3 Ref2VA video prompts with character presenter, holographic interaction, and full narration coverage."
+summary-cn: "将用户提供的参考图和文案转化为多段 H3 Ref2VA 视频提示词，包含角色讲师、全息交互和完整旁白覆盖。"
+desc-en: "For creators who need polished short-video explainers with a character presenter and holographic UI interaction. Users provide a character reference image, an environment reference image, and a complete narration script. The Skill auto-splits the script into segments (each within user-specified max duration), calculates narration budget based on content density or user-provided audio duration, designs at least 2 holographic interactions per segment, and outputs complete self-contained H3 Ref2VA format prompts. No external skill dependencies. Style, aspect ratio, and segment duration are flexible."
+desc-cn: "面向需要高质量短视频讲解的创作者。用户提供角色参考图、环境参考图和完整文案。Skill 自动将文案拆分为多段（每段在用户指定最大时长内），根据内容密度或用户提供的音频时长计算旁白预算，每段设计至少2个全息交互元素，输出完全自包含的 H3 Ref2VA 格式提示词。不依赖外部 skill。风格、画幅、段时长均可灵活配置。"
+author-en: "StarAI"
+author-cn: "StarAI"
+source: local

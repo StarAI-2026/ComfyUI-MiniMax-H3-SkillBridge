@@ -22,11 +22,26 @@ def _image_part(image: Image.Image, label: str) -> list[dict[str, Any]]:
     ]
 
 
+def build_user_content(
+    prompt: str,
+    images: list[Image.Image],
+    video_frames: list[Image.Image],
+) -> list[dict[str, Any]]:
+    content: list[dict[str, Any]] = []
+    for index, image in enumerate(images, 1):
+        content.extend(_image_part(image, f"参考图 {index}："))
+    for index, frame in enumerate(video_frames, 1):
+        content.extend(_image_part(frame, f"视频帧 {index}："))
+    content.append({"type": "text", "text": prompt})
+    return content
+
+
 def chat_cloud(api_base: str, model: str, system: str, prompt: str,
                images: list[Image.Image], video_frames: list[Image.Image],
                temperature: float, top_p: float, max_tokens: int,
                repetition_penalty: float, api_key: str = "",
-               proxy_url: str = "", timeout: int = 120) -> str:
+               proxy_url: str = "", timeout: int = 120,
+               history: list[dict[str, Any]] | None = None) -> str:
     key = (api_key or "").strip() or get_api_key()
     if not key:
         raise CloudError(
@@ -36,19 +51,21 @@ def chat_cloud(api_base: str, model: str, system: str, prompt: str,
     if not api_base.strip() or not model.strip():
         raise CloudError("云端模式必须填写 api_base 和 model")
 
-    content: list[dict[str, Any]] = []
-    for index, image in enumerate(images, 1):
-        content.extend(_image_part(image, f"参考图 {index}："))
-    for index, frame in enumerate(video_frames, 1):
-        content.extend(_image_part(frame, f"视频帧 {index}："))
-    content.append({"type": "text", "text": prompt})
+    content = build_user_content(prompt, images, video_frames)
+    messages: list[dict[str, Any]] = [{"role": "system", "content": system}]
+    for item in history or []:
+        role = item.get("role")
+        text = item.get("content")
+        if role in {"user", "assistant"} and isinstance(text, str) and text.strip():
+            messages.append({"role": role, "content": text})
+    messages.append({"role": "user", "content": content})
 
     endpoint = api_base.rstrip("/")
     if not endpoint.endswith("/chat/completions"):
         endpoint += "/chat/completions"
     payload = {
         "model": model.strip(),
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}],
+        "messages": messages,
         "temperature": float(temperature),
         "top_p": float(top_p),
         "max_tokens": int(max_tokens),

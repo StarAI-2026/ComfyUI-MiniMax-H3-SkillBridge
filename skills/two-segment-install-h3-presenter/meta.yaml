@@ -1,0 +1,19 @@
+display-name-zh: Easy Install 与 H3 双语境讲解
+version: 1.0.0
+tag-en: Presenter Explainer
+tag-cn: 讲解视频
+complete-tags-en:
+- Video / Presenter
+- Video / Installation
+- Video / H3 Guidance
+complete-tags-cn:
+- 视频 / 讲师讲解
+- 视频 / 安装教程
+- 视频 / H3 玩法
+summary-en: Generate a 30-second two-segment mature presenter video about ComfyUI-Easy-Install and MiniMax H3 hardware guidance.
+summary-cn: 生成一支 30 秒、两段各 15 秒的成熟讲师风格视频，结合 ComfyUI 简易安装、全息交互和 MiniMax H3 硬件玩法攻略。
+desc-en: Designed for creators who need a polished short-video explainer with a mature presenter, a pink luxury study, holographic interaction, ComfyUI-Easy-Install setup guidance, and practical MiniMax H3 hardware advice.
+desc-cn: 面向需要高质量短视频讲解的创作者，将成熟讲师形象、粉色书房、全息互动、ComfyUI-Easy-Install 快速安装和 MiniMax H3 硬件建议整合为两段可直接生成的视频提示词。
+author-en: StarAI
+author-cn: StarAI
+source: local

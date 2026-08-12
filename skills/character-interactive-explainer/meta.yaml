@@ -1,0 +1,19 @@
+﻿display-name-zh: 角色交互演示生成器
+version: 1.0.0
+tag-en: "Presenter"
+tag-cn: "讲师讲解"
+complete-tags-en:
+  - "Video / Presenter"
+  - "Video / Interactive Demo"
+  - "Video / Explainer"
+complete-tags-cn:
+  - "视频 / 角色讲解"
+  - "视频 / 交互演示"
+  - "视频 / 知识科普"
+summary-en: "Turn any topic into multi-segment H3 video prompts featuring a character presenter in a locked environment with holographic interaction, analogies, and narration."
+summary-cn: "将任意主题转化为多段 H3 视频提示词，包含角色讲师、环境锁定、全息交互、打比方和旁白解说。"
+desc-en: "For creators who need a polished short-video explainer with a character presenter, a locked environment, interactive holographic UI elements, analogies, and clear narration. Users provide a character reference image, an environment reference image, a topic with key talking points, and optional style preferences. The Skill parses the content into segments, designs holographic interaction elements per segment, generates analogies, writes a narration script, and outputs H3 Ref2VA format video prompts. Best for product tutorials, tech guides, educational explainers, and hardware recommendations; not for prompt-only tasks without reference images, non-narrated B-roll, or photorealistic ads without a presenter."
+desc-cn: "面向需要高质量短视频讲解的创作者，将角色讲师形象、环境场景、全息交互、打比方和旁白解说整合为多段可直接生成的 H3 视频提示词。用户提供角色参考图、环境参考图、主题和要点，也可补充风格偏好。Skill 会将内容分段、设计每段全息交互元素、生成比方、撰写旁白脚本，最终输出 H3 Ref2VA 格式视频提示词。适用于产品教程、技术指南、知识科普、硬件建议等场景，不适用于无参考图的纯提示词任务、无讲师旁白空镜或无讲师的写实广告。"
+author-en: "StarAI"
+author-cn: "StarAI"
+source: local
